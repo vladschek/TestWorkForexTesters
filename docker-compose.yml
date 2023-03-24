@@ -1,0 +1,55 @@
+version: '3.4'
+
+services:
+  users.api:
+    image: ${DOCKER_REGISTRY-}usersapi
+    build:
+      context: .
+      dockerfile: Users.API/Dockerfile
+    ports:
+      - "5000:5000" 
+    depends_on:
+      - postgresdb
+    mem_limit: 500mb
+
+  postgresdb:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test1234
+      POSTGRES_DB: Users
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    mem_limit: 2g
+
+  mongo-db:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_DATABASE: TestWork
+      MONGO_INITDB_ROOT_USERNAME: mango
+      MONGO_INITDB_ROOT_PASSWORD: womango
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    mem_limit: 1g
+
+  projects.api:
+    image: ${DOCKER_REGISTRY-}projectsapi
+    build:
+      context: .
+      dockerfile: Projects.API/Dockerfile
+    depends_on:
+      - mongo-db
+    ports:
+      - '5001:5001'
+    mem_limit: 500mb
+
+volumes:
+  pgdata:
+  mongo-data:
+
+
